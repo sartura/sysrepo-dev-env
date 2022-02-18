@@ -23,7 +23,7 @@ When the setup script finishes, you can use export scripts to export needed envi
 
 Example usage of an export script:
 ```
-./export-libyang2.sh ~/sysrepo-dev
+source ./export-libyang2.sh ~/sysrepo-dev
 ```
 
 When building plugins, make sure to use `CMAKE_PREFIX_PATH` and point the variable to the root of either libyang1 or libyang2 directory created using the `setup.sh` script. For example:

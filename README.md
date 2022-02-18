@@ -29,5 +29,5 @@ Example usage of an export script:
 When building plugins, make sure to use `CMAKE_PREFIX_PATH` and point the variable to the root of either libyang1 or libyang2 directory created using the `setup.sh` script. For example:
 
 ```
-cmake -DCMAKE_PREFIX_PATH=~/sysrepo-dev/libyang2 -DCMAKE_INSTALL_PREFIX:PATH=~ sysrepo-dev/libyang2 ..
+cmake -DCMAKE_PREFIX_PATH=~/sysrepo-dev/libyang2 -DCMAKE_INSTALL_PREFIX:PATH=~/sysrepo-dev/libyang2 ..
 ```

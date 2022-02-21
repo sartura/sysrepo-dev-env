@@ -11,8 +11,14 @@ create_root_structure () {
 
 download_repos () {
     local root_path="$1"
-    git clone https://github.com/sysrepo/sysrepo.git "$root_path/repos/sysrepo"
     git clone https://github.com/CESNET/libyang.git "$root_path/repos/libyang"
+    git clone https://github.com/sysrepo/sysrepo.git "$root_path/repos/sysrepo"
+}
+
+setup_sysrepo_config () {
+    local ly_version="$1"
+    local config_path="$2"
+    sed -i "s|#define SR_SHM_DIR \"/dev/shm\"|#define SR_SHM_DIR \"/dev/shm/$ly_version\"|" $config_path
 }
 
 build_repo () {
@@ -48,6 +54,7 @@ else
     # sysrepo
     cd "$1/libyang1/repos/sysrepo"
     git checkout libyang1
+    setup_sysrepo_config "libyang1" "src/common.h.in"
     build_repo "$1/libyang1"
 
     # setup libyang2 repo branches
@@ -60,6 +67,7 @@ else
     # sysrepo
     cd "$1/libyang2/repos/sysrepo"
     git checkout devel
+    setup_sysrepo_config "libyang2" "src/config.h.in"
     build_repo "$1/libyang2"
 
     # return back

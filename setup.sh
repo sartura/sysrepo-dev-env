@@ -6,7 +6,7 @@ create_root_structure () {
 
     # create root structure
     local path="$1"
-    mkdir "$path/bin" "$path/lib" "$path/include" "$path/etc" "$path/share" "$path/repos"
+    mkdir $path/{bin,lib,include,dev,etc,share,repos}
 }
 
 download_repos () {
@@ -16,9 +16,12 @@ download_repos () {
 }
 
 setup_sysrepo_config () {
-    local ly_version="$1"
-    local config_path="$2"
-    sed -i "s|#define SR_SHM_DIR \"/dev/shm\"|#define SR_SHM_DIR \"/dev/shm/$ly_version\"|" $config_path
+    local shm_path="$1/$2/dev/shm"
+    local ly_version="$2"
+    local config_path="$3"
+    # create shm dir
+    mkdir $shm_path
+    sed -i "s|#define SR_SHM_DIR \"/dev/shm\"|#define SR_SHM_DIR \"$shm_path\"|" $config_path
 }
 
 build_repo () {
@@ -38,13 +41,28 @@ if [ $# -eq 0 ]
 else
     current_dir=$(pwd)
 
+    echo "Creating directories..."
     create_root_structure "$1/libyang1"
     create_root_structure "$1/libyang2"
+    mkdir $1/repos
 
-    download_repos "$1/libyang1"
-    download_repos "$1/libyang2"
+    # download once instead of each time for specific LY version
+    echo "Cloning repositories..."
+    download_repos "$1"
+    
+    # copy repos in their respected sub-dirs
+
+    # libyang
+    cp -r $1/repos/libyang $1/libyang1/repos/libyang
+    cp -r $1/repos/libyang $1/libyang2/repos/libyang
+
+    # sysrepo
+    cp -r $1/repos/sysrepo $1/libyang1/repos/sysrepo
+    cp -r $1/repos/sysrepo $1/libyang2/repos/sysrepo
 
     # setup libyang1 repo branches
+
+    echo "Setting up libyang1 version..."
 
     # libyang
     cd "$1/libyang1/repos/libyang"
@@ -54,10 +72,12 @@ else
     # sysrepo
     cd "$1/libyang1/repos/sysrepo"
     git checkout libyang1
-    setup_sysrepo_config "libyang1" "src/common.h.in"
+    setup_sysrepo_config "$1" "libyang1" "src/common.h.in"
     build_repo "$1/libyang1"
 
     # setup libyang2 repo branches
+
+    echo "Setting up libyang2 version..."
 
     # libyang
     cd "$1/libyang2/repos/libyang"
@@ -67,7 +87,7 @@ else
     # sysrepo
     cd "$1/libyang2/repos/sysrepo"
     git checkout devel
-    setup_sysrepo_config "libyang2" "src/config.h.in"
+    setup_sysrepo_config "$1" "libyang2" "src/config.h.in"
     build_repo "$1/libyang2"
 
     # return back

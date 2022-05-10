@@ -6,7 +6,7 @@ create_root_structure () {
 
     # create root structure
     local path="$1"
-    mkdir $path/{bin,lib,include,dev,etc,share,repos}
+    mkdir $path/{bin,lib,include,dev,etc,share,repos,plugins}
 }
 
 download_repos () {
